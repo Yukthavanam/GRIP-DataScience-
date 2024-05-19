@@ -1,0 +1,50 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# Load the dataset
+iris = load_iris()
+data = pd.DataFrame(iris.data, columns=iris.feature_names)
+
+# Determine the optimal number of clusters using the Elbow Method and Silhouette Scores
+sse = []
+silhouette_scores = []
+k_range = range(2, 11)
+
+for k in k_range:
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(data)
+    sse.append(kmeans.inertia_)
+    silhouette_scores.append(silhouette_score(data, kmeans.labels_))
+
+# Plot SSE for Elbow Method
+plt.figure(figsize=(10, 5))
+plt.plot(k_range, sse, 'bx-')
+plt.xlabel('Number of clusters')
+plt.ylabel('Sum of squared distances (SSE)')
+plt.title('Elbow Method For Optimal Number of Clusters')
+plt.show()
+
+# Plot Silhouette Scores
+plt.figure(figsize=(10, 5))
+plt.plot(k_range, silhouette_scores, 'bx-')
+plt.xlabel('Number of clusters')
+plt.ylabel('Silhouette Score')
+plt.title('Silhouette Scores For Optimal Number of Clusters')
+plt.show()
+
+# Choose the optimal number of clusters and apply K-Means clustering
+optimal_clusters = 3
+kmeans = KMeans(n_clusters=optimal_clusters, random_state=42)
+clusters = kmeans.fit_predict(data)
+data['Cluster'] = clusters
+
+# Visualize the clusters
+plt.figure(figsize=(10, 5))
+plt.scatter(data.iloc[:, 0], data.iloc[:, 1], c=clusters, cmap='viridis')
+plt.xlabel(data.columns[0])
+plt.ylabel(data.columns[1])
+plt.title('Cluster Visualization')
+plt.show()
